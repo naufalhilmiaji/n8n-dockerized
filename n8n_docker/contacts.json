@@ -1,0 +1,42 @@
+[
+  {
+    "uuid": "0ac3d5ea-a8d5-4e79-b9e3-52914ff0a27c",
+    "id": "6281285244060@c.us",
+    "isMe": false,
+    "isGroup": false,
+    "name": "Mamas",
+    "number": "6281285244060",
+    "isBusiness": false,
+    "isMyContact": true
+  },
+  {
+    "uuid": "69ad0ea9-47a0-45a4-94b0-18edb94edca1",
+    "id": "6282154387886@c.us",
+    "isMe": false,
+    "isGroup": false,
+    "name": "PGASCOM Yulita Anggelasari",
+    "number": "6282154387886",
+    "isBusiness": false,
+    "isMyContact": true
+  },
+  {
+    "uuid": "db471965-ca1d-4c66-8c1c-ba0074853d79",
+    "id": "120363420744973133@g.us",
+    "isMe": false,
+    "isGroup": true,
+    "name": "N8N",
+    "number": null,
+    "isBusiness": false,
+    "isMyContact": false
+  },
+  {
+    "uuid": "6f165426-21c7-4e98-bd07-cb9fec85ee3d",
+    "id": "6281286053311@c.us",
+    "isMe": false,
+    "isGroup": false,
+    "name": "Dede",
+    "number": "6281286053311",
+    "isBusiness": false,
+    "isMyContact": true
+  }
+]

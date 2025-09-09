@@ -1,0 +1,60 @@
+services:
+  n8n:
+    image: n8nio/n8n:latest
+    container_name: n8n_lan
+    ports:
+      - "5678:5678"
+    environment:
+      - N8N_PROTOCOL=http
+      - N8N_HOST=192.168.100.219
+      - N8N_PORT=5678
+      - N8N_SECURE_COOKIE=false
+      - N8N_BASIC_AUTH_ACTIVE=true
+      - N8N_BASIC_AUTH_USER=naufal
+      - N8N_BASIC_AUTH_PASSWORD=0pan69anteng
+      - N8N_COMMUNITY_PACKAGES_ALLOW_TOOL=true
+    volumes:
+      - n8n-volume:/home/node/.n8n
+
+  node:
+    build:
+      context: .          # path where the Dockerfile is located
+      dockerfile: Dockerfile  # optional if file is literally named 'Dockerfile'
+    container_name: n8n_nodev2
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/usr/src/app
+    command: npm run serve
+  
+  pgsql:
+    image: postgres:latest
+    container_name: n8n_postgres
+    environment:
+      - POSTGRES_USER=naufal
+      - POSTGRES_PASSWORD=0pan69anteng
+      - POSTGRES_DB=n8n_trial
+    volumes:
+      - pg-volume:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
+  
+  pgsql_avemon:
+    image: postgres:latest
+    container_name: n8n_avemon
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password123
+      - POSTGRES_DB=local_avemon
+    volumes:
+      - pg-avemon:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  n8n-volume:
+    external: true
+  pg-avemon:
+    external: true
+  pg-volume:
+    external: true

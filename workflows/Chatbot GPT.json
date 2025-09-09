@@ -1,0 +1,383 @@
+{
+  "name": "Chatbot GPT",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "responseMode": "responseNodes"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -16,
+        112
+      ],
+      "id": "a2f674f2-009b-4280-a812-572b72dd1b5a",
+      "name": "When chat message received",
+      "webhookId": "4055433a-7666-4b1b-ae00-5576c8ff6a4f"
+    },
+    {
+      "parameters": {
+        "model": "llama2:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        288,
+        224
+      ],
+      "id": "e94f7438-113c-42a8-a4e6-fe2e612c5e00",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "4PgliyL6CU6DcHaZ",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "message": "=[{{ $now }}] - {{ $json.output }}\n\nSentiment: {{ $json.sentimentAnalysis.category }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chat",
+      "typeVersion": 1,
+      "position": [
+        912,
+        112
+      ],
+      "id": "12b4b9fa-1082-4a36-baf6-34341a4a578a",
+      "name": "Respond to Chat"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "acf7f9af-f504-4195-be22-c92e4cd862e9",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "http://localhost:3000"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -16,
+        576
+      ],
+      "id": "605b4cec-57e9-4810-8209-0533caa7565b",
+      "name": "Webhook",
+      "webhookId": "acf7f9af-f504-4195-be22-c92e4cd862e9"
+    },
+    {
+      "parameters": {
+        "respondWith": "allIncomingItems",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        912,
+        576
+      ],
+      "id": "b12d3ea1-8444-4aaf-945b-30bf88d48778",
+      "name": "Respond"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.chat }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        576
+      ],
+      "id": "12a26940-3764-4610-b03d-24d243f80d1c",
+      "name": "Chatbot System"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=$json.body.sessionId"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        800
+      ],
+      "id": "e85f8a99-3675-4b76-aa5c-34a8f1597f79",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $('When chat message received').item.json.chatInput }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.sentimentAnalysis",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        -16
+      ],
+      "id": "d470eda8-b7e3-4765-9369-06b97e41bccd",
+      "name": "Sentiment Analysis"
+    },
+    {
+      "parameters": {
+        "model": "llama2:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        640,
+        240
+      ],
+      "id": "12bfe23d-78a9-4c87-b361-091e98f03615",
+      "name": "Ollama Chat Model2",
+      "credentials": {
+        "ollamaApi": {
+          "id": "4PgliyL6CU6DcHaZ",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama2:latest",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        224,
+        800
+      ],
+      "id": "acd97ab7-ef7a-46be-8bcc-792e252073af",
+      "name": "Ollama Chat",
+      "credentials": {
+        "ollamaApi": {
+          "id": "4PgliyL6CU6DcHaZ",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama3.2:latest",
+        "options": {
+          "format": "json"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmOllama",
+      "typeVersion": 1,
+      "position": [
+        624,
+        784
+      ],
+      "id": "5f0f954b-a875-43b8-8dae-241d4ef2d908",
+      "name": "Ollama Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "4PgliyL6CU6DcHaZ",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "93267c00-467f-4c14-8e50-1ced4101b4f3",
+      "name": "Chat-Based Agent"
+    },
+    {
+      "parameters": {
+        "inputText": "={{ $('Webhook').item.json.body.chat }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.sentimentAnalysis",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        576
+      ],
+      "id": "f1479d94-0a09-424e-9560-de77d1548bfc",
+      "name": "User's Sentiment Analyzer"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Chat-Based Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Chat-Based Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Chatbot System",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chatbot System": {
+      "main": [
+        [
+          {
+            "node": "User's Sentiment Analyzer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Chatbot System",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Sentiment Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sentiment Analysis": {
+      "main": [
+        [
+          {
+            "node": "Respond to Chat",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Chat",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Chat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Chat": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Chatbot System",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ollama Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "User's Sentiment Analyzer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat-Based Agent": {
+      "main": [
+        [
+          {
+            "node": "Sentiment Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "User's Sentiment Analyzer": {
+      "main": [
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0f0dc272-f2cb-472e-b907-23db95c86287",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "57b39d037fd805a969cd70a62fe5efebb12d14b3ecbac7d204dd64c06334d9a3"
+  },
+  "id": "gi2mP3kxG79ESBNe",
+  "tags": []
+}
