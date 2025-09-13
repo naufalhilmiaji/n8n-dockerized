@@ -6,7 +6,6 @@ services:
       - "5678:5678"
     environment:
       - N8N_PROTOCOL=http
-      - N8N_HOST=192.168.100.219
       - N8N_PORT=5678
       - N8N_SECURE_COOKIE=false
       - N8N_BASIC_AUTH_ACTIVE=true
@@ -18,13 +17,14 @@ services:
 
   node:
     build:
-      context: .          # path where the Dockerfile is located
-      dockerfile: Dockerfile  # optional if file is literally named 'Dockerfile'
+      context: .
+      dockerfile: Dockerfile
     container_name: n8n_nodev2
     ports:
       - "3000:3000"
     volumes:
-      - ./:/usr/src/app
+      - .:/usr/src/app               # mount your source code
+      - /usr/src/app/node_modules    # keep node_modules inside container
     command: npm run serve
   
   pgsql:

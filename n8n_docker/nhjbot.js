@@ -165,7 +165,8 @@ client.on('message', async (message) => {
 
             // Correct the axios post URL to point to your N8N instance.
             // Ensure the protocol (http://) and port (5678) are included.
-            const response = await axios.post('http://host.docker.internal:5678/webhook/acf7f9af-f504-4195-be22-c92e4cd862e9', {
+            // http://localhost:5678/webhook/99e08f0e-9c32-4a7f-b9c6-274e1b1028b1
+            const response = await axios.post('http://host.docker.internal:5678/webhook/99e08f0e-9c32-4a7f-b9c6-274e1b1028b1', {
                 sessionId: UUID,
                 chat: chat
             });
@@ -175,9 +176,8 @@ client.on('message', async (message) => {
                 await safeReply(message, "⚠️ Sorry, I'm having trouble connecting to the server. Please try again later.", options);
                 return;
             }
-            
-            console.log(response)
-            let data = response.data[0];
+
+            let data = response.data;
 
             let text = data['output'];
             // let sentiment = data['sentimentAnalysis']['category'];

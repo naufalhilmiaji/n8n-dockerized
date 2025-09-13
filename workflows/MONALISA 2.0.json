@@ -1,0 +1,433 @@
+{
+  "name": "MONALISA Flow",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "responseMode": "responseNodes"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -672,
+        0
+      ],
+      "id": "1df195e0-1c46-4635-a61b-7f6bd30e5ed8",
+      "name": "When chat message received",
+      "webhookId": "48a0c21d-2b43-46ed-a2da-6e3932f4f87d"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "{{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        544,
+        48
+      ],
+      "id": "ce588a03-72dc-487d-b650-218da43c19bf",
+      "name": "Execute a SQL query",
+      "alwaysOutputData": false,
+      "credentials": {
+        "postgres": {
+          "id": "AFYZTHcmaVCHCh38",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to understand the table structures by table name provided.",
+        "workflowId": {
+          "__rl": true,
+          "value": "kjCdIOspiIuK8JA2",
+          "mode": "list",
+          "cachedResultName": "AVEMON Structures"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {}
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        400,
+        272
+      ],
+      "id": "3a865784-400d-406c-beb6-330c11b15b69",
+      "name": "Get DB Structures"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Webhook').item.json.body.chat }}",
+        "options": {
+          "systemMessage": "You are an SQL query generator.\n\n# IMPORTANT RULES\n- MUST call the \"Get DB Structures\" tool EVERY time to retrieve database structures before writing SQL.\n- You have NO prior knowledge of the database schema.\n- NEVER invent or assume table or column names. Only use the names returned by the tool.\n- After schema retrieval, output ONLY the final SQL query as plain text.\n- All table names must be in double quotes, e.g. \"Customers\".\n- All column names must be in double quotes, e.g. \"CustomerID\".\n- EXCLUDE All Primary Key column\n\n# Output ONLY the SQL query as a plain string.\n- Do NOT include ```sql or any Markdown formatting.\n- Do NOT include explanations or extra text.\n- The response must be ONLY the SQL query.\n\n# NETWORKING TABLE DETAILS:\n- \"TSel\": List of all IP from TSel Provider\n- \"XL\": List of all IP from XL Provider\n- \"FO\": List of all IP from FO Provider\n- \"PingResult\": List of all ping results from ALL IP Addresses\n- \"SuccessRateProvider\": Shows the percentages of ping to all IP Addresses, whether it's RTO or high latency or good.\n- \"IpListProvider\": List of all IP addresses with their respective providers and customers attached.\n\n# CUSTOMER-RELATED TABLE DETAILS:\n- \"ListCustomer\": List of all Customer data\n    - \"LogAct\": Define whether a customer is active.\n    - \"IsValidConfig\": Define whether a customer has valid configurations.\n\nREMEMBER: MUST call the \"Get DB Structures\" tool EVERY time!"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        160,
+        48
+      ],
+      "id": "ddfb77c0-4a33-4594-b243-9c887c7db749",
+      "name": "AI Query-NLP"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.body.chat }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "sql_cmd",
+              "description": "The SQL query command (SELECT, INSERT, UPDATE, DELETE, etc.).",
+              "required": true
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "You are an expert extraction algorithm.\nOnly extract relevant information from the text.\n\n# INSTRUCTIONS\nThe SQL query command (SELECT, INSERT, UPDATE, DELETE, etc.). Choose only one related to the text.\n\n# RULES\nNEVER RETURN A FULL QUERY. ONLY  SHOW THE RESULTS LIKE THE FOLLOWING:\n- SELECT\n- UPDATE\n- INSERT\n- DELETE"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        -464,
+        304
+      ],
+      "id": "fa4ac360-0b4e-49f6-87ee-c74b8c40b78e",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "model": "deepseek/deepseek-r1-distill-llama-70b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -400,
+        464
+      ],
+      "id": "0ed1e25f-5104-4458-a6fb-8bcf12468fec",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "BwtHMhNpyHDtTvjb",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f3e678e0-e1f2-484e-9200-7530b4fba062",
+              "leftValue": "={{ $json.output.sql_cmd }}",
+              "rightValue": "SELECT",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -112,
+        304
+      ],
+      "id": "f42dbbc3-f104-4ee4-ae0f-5201f832de15",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Write a nice response if you are not allowed to do \"{{ $json.output.sql_cmd }}\" command to a database.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        176,
+        448
+      ],
+      "id": "7e95d36a-c860-4ba4-b337-e35efcabbeda",
+      "name": "AI Response Generator"
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-20b",
+        "options": {
+          "maxTokens": 1000
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        176,
+        672
+      ],
+      "id": "902c2002-b839-4dc7-aa77-d6dc5f3b57a5",
+      "name": "AI Response Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "BwtHMhNpyHDtTvjb",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "openai/gpt-oss-20b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        96,
+        272
+      ],
+      "id": "88e0727c-6ef1-432c-8538-8e9f165f45d2",
+      "name": "AI Query-NLP Model",
+      "credentials": {
+        "openRouterApi": {
+          "id": "BwtHMhNpyHDtTvjb",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let items = $input.all();\nlet rstr = \"\";\n\nitems.forEach((item) => {\n  for (const [key, value] of Object.entries(item.json)) {\n    rstr += `${key}: ${value}\\n`;\n  }\n  rstr += \"\\n\"; // blank line between customers\n});\n\nreturn [{ json: { output: rstr.trim() } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        768,
+        272
+      ],
+      "id": "f22b471b-8790-461c-994c-b6e8d1c20354",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "$(\"Webhook\").json.body.sessionId"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        240,
+        272
+      ],
+      "id": "08ee9416-ca62-46ec-a0d9-221cbf3133c8",
+      "name": "Memory"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "99e08f0e-9c32-4a7f-b9c6-274e1b1028b1",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -672,
+        304
+      ],
+      "id": "7d173f1c-c314-4568-9e81-ad61b5dbfea7",
+      "name": "Webhook",
+      "webhookId": "99e08f0e-9c32-4a7f-b9c6-274e1b1028b1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        1024,
+        448
+      ],
+      "id": "935fed45-6333-4925-ae8c-4d79e0408710",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        []
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get DB Structures": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Query-NLP",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Query-NLP": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "AI Query-NLP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Response Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Response Generator": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Response Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Response Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Query-NLP Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Query-NLP",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Query-NLP",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "1492a8e8-8e3f-4a7f-91ee-7f03e804df5e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "d626b2fd52bc627f8e257ff32a01b756e028747cac0d1f0454c255dca88052ba"
+  },
+  "id": "LUpCXFl4TgdmPv25",
+  "tags": []
+}

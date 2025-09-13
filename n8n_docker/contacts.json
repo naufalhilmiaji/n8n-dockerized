@@ -38,5 +38,25 @@
     "number": "6281286053311",
     "isBusiness": false,
     "isMyContact": true
+  },
+  {
+    "uuid": "4f802ff5-7411-4f9f-8dfc-a5a0aa347e52",
+    "id": "120363162273609812@g.us",
+    "isMe": false,
+    "isGroup": true,
+    "name": "SCADA Team Internal",
+    "number": null,
+    "isBusiness": false,
+    "isMyContact": false
+  },
+  {
+    "uuid": "b8fdd97f-60b2-4d20-bd30-93f4ab19508a",
+    "id": "6281292555532@c.us",
+    "isMe": false,
+    "isGroup": false,
+    "name": "PGASCOM Monalisa",
+    "number": "6281292555532",
+    "isBusiness": false,
+    "isMyContact": true
   }
 ]
